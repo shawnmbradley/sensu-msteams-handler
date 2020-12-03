@@ -153,7 +153,7 @@ func executeHandler(event *types.Event) error {
 
 	// post some data
 	resp, err := http.Post(
-		"http://dummy.restapiexample.com/api/v1/create",
+		plugin.WebHookURL,
 		"application/json; charset=UTF-8",
 		requestBody,
 	)
