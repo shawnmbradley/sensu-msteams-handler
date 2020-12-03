@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	"github.com/sensu/sensu-go/types"
@@ -109,7 +109,7 @@ func executeHandler(event *types.Event) error {
 	//       }
 	//   ]
 	// `})
-	requestBody := string.NewReader(`
+	requestBody := strings.NewReader(`
 		{
 			"@context": "https://schema.org/extensions",
 			"@type": "MessageCard",
@@ -160,9 +160,6 @@ func executeHandler(event *types.Event) error {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	// read response data
-	data, _ := ioutil.ReadAll(resp.Body)
 
 	// close response body
 	resp.Body.Close()
