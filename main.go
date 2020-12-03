@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,6 +18,14 @@ type Config struct {
 	sensu.PluginConfig
 	Example    string
 	WebHookURL string
+}
+
+type TeamsCard struct {
+	Context    string `json:"@context"`
+	Type       string `json:"@type"`
+	ThemeColor string `json:"themeColor"`
+	Title      string `json:"title"`
+	Text       string `json:"text"`
 }
 
 const (
@@ -69,48 +78,18 @@ func checkArgs(_ *types.Event) error {
 
 func executeHandler(event *types.Event) error {
 	log.Println("executing handler with --webHookURL", plugin.WebHookURL)
-
-	requestBody := strings.NewReader(`
-		{
-			"@context": "https://schema.org/extensions",
-			"@type": "MessageCard",
-			"themeColor": "FF0000",
-			"title": ` + event.Check.Name + ` on ` + event.Entity.Name + `,
-			"text": "TEST",
-			"sections": [
-					{
-							"activityTitle": "Issue Description",
-							"activitySubtitle": "TEST",
-							"facts": [
-									{
-											"name": "Configuration Item",
-											"value": "TEST"
-									},
-									{
-											"name": "Priority",
-											"value": "ERRRRROR"
-									}
-							]
-					}
-			],
-			"potentialAction": [
-					{
-					"@type": "OpenUri",
-					"name": "View Alert",
-					"targets": [
-							{ "os": "default", "uri": "https://google.com" }
-					]
-					},
-					{
-					"@type": "OpenUri",
-					"name": "Silence",
-					"targets": [
-							{ "os": "default", "uri": "https://google.com" }
-					]
-					}
-			]
-		}
-	`)
+	data := TeamsCard{
+		Context:    "https://schema.org/extensions",
+		Type:       "MessageCard",
+		ThemeColor: "FF0000",
+		Title:      event.Entity.Name,
+		Text:       event.Name,
+	}
+	card, _ := json.Marshal(data)
+	var (
+		reqBody = fmt.Sprintf("%s", card)
+	)
+	requestBody := strings.NewReader(reqBody)
 
 	// post some data
 	resp, err := http.Post(
