@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 
 	"github.com/sensu-community/sensu-plugin-sdk/sensu"
 	"github.com/sensu/sensu-go/types"
@@ -67,5 +69,103 @@ func checkArgs(_ *types.Event) error {
 
 func executeHandler(event *types.Event) error {
 	log.Println("executing handler with --webHookURL", plugin.WebHookURL)
+
+	// requestBody := strings.NewReader ({`
+	//   "@context": "https://schema.org/extensions",
+	//   "@type": "MessageCard",
+	//   "themeColor": "FF0000",
+	//   "title": "TEST",
+	//   "text": "TEST",
+	//   "sections": [
+	// 		{
+	// 				"activityTitle": "Issue Description",
+	// 				"activitySubtitle": "TEST",
+	// 				"facts": [
+	// 						{
+	// 								"name": "Configuration Item",
+	// 								"value": "TEST"
+	// 						},
+	// 						{
+	// 								"name": "Priority",
+	// 								"value": "TEST"
+	// 						}
+	// 				]
+	// 		}
+	//   ],
+	//   "potentialAction": [
+	//       {
+	//       "@type": "OpenUri",
+	//       "name": "View Incident",
+	//       "targets": [
+	//           { "os": "default", "uri": "https://test.com/nav_to.do?uri=incident.do?sys_id=TEST" }
+	//       ]
+	//       },
+	//       {
+	//       "@type": "OpenUri",
+	//       "name": "Join Tech Bridge",
+	//       "targets": [
+	//           { "os": "default", "uri": "https://test.com/my/techbridge" }
+	//       ]
+	//       }
+	//   ]
+	// `})
+	requestBody := string.NewReader(`
+		{
+			"@context": "https://schema.org/extensions",
+			"@type": "MessageCard",
+			"themeColor": "FF0000",
+			"title": "TEST",
+			"text": "TEST",
+			"sections": [
+					{
+							"activityTitle": "Issue Description",
+							"activitySubtitle": "TEST",
+							"facts": [
+									{
+											"name": "Configuration Item",
+											"value": "TEST"
+									},
+									{
+											"name": "Priority",
+											"value": "ERRRRROR"
+									}
+							]
+					}
+			],
+			"potentialAction": [
+					{
+					"@type": "OpenUri",
+					"name": "View Alert",
+					"targets": [
+							{ "os": "default", "uri": "https://google.com" }
+					]
+					},
+					{
+					"@type": "OpenUri",
+					"name": "Silence",
+					"targets": [
+							{ "os": "default", "uri": "https://google.com" }
+					]
+					}
+			]
+		}
+	`)
+
+	// post some data
+	resp, err := http.Post(
+		"http://dummy.restapiexample.com/api/v1/create",
+		"application/json; charset=UTF-8",
+		requestBody,
+	)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// read response data
+	data, _ := ioutil.ReadAll(resp.Body)
+
+	// close response body
+	resp.Body.Close()
+
 	return nil
 }
