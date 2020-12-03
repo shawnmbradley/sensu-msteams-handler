@@ -70,51 +70,12 @@ func checkArgs(_ *types.Event) error {
 func executeHandler(event *types.Event) error {
 	log.Println("executing handler with --webHookURL", plugin.WebHookURL)
 
-	// requestBody := strings.NewReader ({`
-	//   "@context": "https://schema.org/extensions",
-	//   "@type": "MessageCard",
-	//   "themeColor": "FF0000",
-	//   "title": "TEST",
-	//   "text": "TEST",
-	//   "sections": [
-	// 		{
-	// 				"activityTitle": "Issue Description",
-	// 				"activitySubtitle": "TEST",
-	// 				"facts": [
-	// 						{
-	// 								"name": "Configuration Item",
-	// 								"value": "TEST"
-	// 						},
-	// 						{
-	// 								"name": "Priority",
-	// 								"value": "TEST"
-	// 						}
-	// 				]
-	// 		}
-	//   ],
-	//   "potentialAction": [
-	//       {
-	//       "@type": "OpenUri",
-	//       "name": "View Incident",
-	//       "targets": [
-	//           { "os": "default", "uri": "https://test.com/nav_to.do?uri=incident.do?sys_id=TEST" }
-	//       ]
-	//       },
-	//       {
-	//       "@type": "OpenUri",
-	//       "name": "Join Tech Bridge",
-	//       "targets": [
-	//           { "os": "default", "uri": "https://test.com/my/techbridge" }
-	//       ]
-	//       }
-	//   ]
-	// `})
 	requestBody := strings.NewReader(`
 		{
 			"@context": "https://schema.org/extensions",
 			"@type": "MessageCard",
 			"themeColor": "FF0000",
-			"title": "TEST",
+			"title": ` + event.Check.Name + ` on ` + event.Entity.Name + `,
 			"text": "TEST",
 			"sections": [
 					{
