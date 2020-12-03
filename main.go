@@ -20,6 +20,7 @@ type Config struct {
 	WebHookURL string
 }
 
+// TeamsCard represents a MS teams card
 type TeamsCard struct {
 	Context    string `json:"@context"`
 	Type       string `json:"@type"`
@@ -82,7 +83,7 @@ func executeHandler(event *types.Event) error {
 		Context:    "https://schema.org/extensions",
 		Type:       "MessageCard",
 		ThemeColor: "FF0000",
-		Title:      event.Entity.Name,
+		Title:      event.Name,
 		Text:       event.Name,
 	}
 	card, _ := json.Marshal(data)
